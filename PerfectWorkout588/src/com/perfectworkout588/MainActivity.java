@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-	private int time;
-	private TextView tv;
+	private int time; //in seconds
+	private TextView mintv, sectv;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -20,10 +20,13 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		Button button;
-		time = 10;
+		time = 70;
 		
-		tv = (TextView)findViewById(R.id.tvTimer);
-		tv.setText(Integer.toString(time));
+		mintv = (TextView)findViewById(R.id.tvMin);
+		mintv.setText(Integer.toString(time/60));
+		
+		sectv = (TextView)findViewById(R.id.tvSec);
+		sectv.setText(Integer.toString(time%60));
 		
 		button = (Button)findViewById(R.id.btnStart);
 		button.setOnClickListener(startTimer);
@@ -43,26 +46,38 @@ public class MainActivity extends Activity {
 		public void onClick(View v){
 			new CountDownTimer((time * 1000), 100) {
 				int seconds = time;
+				int mins, secs;
+				String s;
 				
 			     public void onTick(long millisUntilFinished) {
-			    	 if (Math.round((float)millisUntilFinished / 1000.0f) != seconds)
-			             tv.setText(Integer.toString(--seconds));
+			    	 if (Math.round((float)millisUntilFinished / 1000.0f) != seconds){
+			    		 mins = --seconds/60;
+			    		 secs = seconds%60;
+			    		 if(secs < 10)
+			    			 s = "0" + secs;
+			    		 else
+			    			 s = Integer.toString(secs);
+			    		 
+			             mintv.setText(Integer.toString(mins));
+			             sectv.setText(s);
+			    	 }
 			     }
 
 			     public void onFinish() {
 			       
 			     }
 			  }.start();
-
 			
-			tv.setText(Integer.toString(time));
+			  	mintv.setText(Integer.toString(time/60));
+			  	sectv.setText(Integer.toString(time%60));
 		}
 	};
 	
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
-
-			tv.setText(Integer.toString(time));
+			//doesn't stop the timer...
+			mintv.setText(Integer.toString(time/60));
+			sectv.setText(Integer.toString(time%60));
 		}
 	};
 }
