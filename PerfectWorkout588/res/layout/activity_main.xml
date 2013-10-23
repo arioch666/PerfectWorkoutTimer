@@ -8,23 +8,42 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/tvTimer"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="121dp"
-        android:text="@string/hello_world"
-        android:textSize="40sp" />
+        android:layout_marginBottom="76dp"
+        android:layout_marginTop="85dp" >
+
+        <TextView
+            android:id="@+id/tvMin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_0"
+            android:textSize="80sp" />
+
+        <TextView
+            android:id="@+id/tvColon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_colon"
+            android:textSize="80sp" />
+
+        <TextView
+            android:id="@+id/tvSec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_00"
+            android:textSize="80sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btnStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvTimer"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="112dp"
+        android:layout_centerVertical="true"
         android:text="@string/start" />
 
     <Button
@@ -33,7 +52,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/btnStart"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="57dp"
+        android:layout_marginTop="86dp"
         android:text="@string/reset" />
 
 </RelativeLayout>
