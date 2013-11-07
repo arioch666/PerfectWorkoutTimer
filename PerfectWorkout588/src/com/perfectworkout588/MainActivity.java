@@ -25,7 +25,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 	SensorManager sensorManager;
 	Boolean started;
 	
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,21 +45,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
 		initilizeSensors();
-		
 	}
 
 	private void initilizeSensors()
 	{
 		if(initializeAccelerometer())
 		{
-			
 			if(initializeProximitySensor())
 			{
-				Toast.makeText(this, "Initilization Complete", Toast.LENGTH_SHORT).show();		
+				Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();		
 			}
 			else
 			{
-				Toast.makeText(this, "initilization failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "initialization failed", Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -102,7 +99,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 //		TextView stream = (TextView) context.findViewById(R.id.stream);
 //		stream.setText(displaySensorList.toString());
 	}
-
 
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1)
@@ -211,7 +207,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		if(Math.abs(_previousChangeDirY)+ Math.abs(currentYValue) <= NOISE)return true;
 		return false;
 	}
-	
+
 	protected final void startTimerNow()
 	{
 		new CountDownTimer((time * 1000), 100) {
@@ -256,7 +252,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 			startTimerNow();
 		}
 	};
-	
 	
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
