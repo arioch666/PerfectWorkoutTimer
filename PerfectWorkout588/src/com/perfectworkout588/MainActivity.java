@@ -25,7 +25,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 	SensorManager sensorManager;
 	Boolean started;
 	
-	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,22 +45,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
 		initilizeSensors();
-		
 	}
 
 	private void initilizeSensors()
 	{
 		if(initializeAccelerometer())
 		{
-			
 			if(initializeProximitySensor())
 			{
-				Toast.makeText(this, "Initilization Complete", Toast.LENGTH_SHORT).show();		
-				
+				Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();		
 			}
 			else
 			{
-				Toast.makeText(this, "initilization failed", Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "initialization failed", Toast.LENGTH_SHORT).show();
 			}
 		}
 	}
@@ -104,7 +100,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 //		stream.setText(displaySensorList.toString());
 	}
 
-
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1)
 	{
@@ -135,11 +130,84 @@ public class MainActivity extends Activity implements SensorEventListener{
 //		((TextView) findViewById(R.id.stream)).setText("x:"+event.values[0]+" y:"+event.values[1]+" z:"+event.values[2]);
 	}
 
+	final float NOISE = (float) 2.0;
+	final float NS2S = 1.0f / 1000000000.0f;
+	float _previousY;
+	int numberOfDirectionChanges = 0;
+	float _previousChangeDirY = 0;
+	long _previousTimestamp = 0;
+	float _localMax = 0;
+	float _localMin = 0;
 	private void shakeDetect(SensorEvent event)
 	{
-//			((TextView) findViewById(R.id.state)).setText("x:"+event.values[0]+" y:"+event.values[1]+" z:"+event.values[2]);
+		if (event.sensor.getType() != Sensor.TYPE_LINEAR_ACCELERATION)
+			return;
+		float y = event.values[1];
+
+		if (IsValidDirectionChange(y, event.timestamp))
+			numberOfDirectionChanges += 1;
+		
+		if (numberOfDirectionChanges == 6) // 3 taps
+		{
+			Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();		
+			numberOfDirectionChanges = 0;
+			_previousTimestamp = 0;
+		}	
 	}
 	
+	boolean IsValidDirectionChange(float currentYValue, long currentTimestamp)
+	{
+		if(TooMuchTimeHasPassed(currentTimestamp)) return false;
+		if(IsLocalMax(currentYValue) || IsLocalMin(currentYValue)) return false;
+		if(!DirectionChanged(currentYValue)) return false;
+		if(IsNoise(currentYValue)) return false;
+		_previousY = currentYValue;
+		_previousTimestamp = currentTimestamp;
+		return true;
+	}
+
+	boolean TooMuchTimeHasPassed(long currentTimestamp) {
+		if ((currentTimestamp - _previousTimestamp) * NS2S < 1)
+			return false;
+		else {
+			numberOfDirectionChanges = 0;
+			_previousTimestamp = currentTimestamp;
+			return true;
+		}
+	}
+
+	boolean IsLocalMax(float currentYValue) {
+		if (currentYValue < _localMax)
+			return false;
+		_localMax = currentYValue;
+		return true;
+	}
+
+	boolean IsLocalMin(float currentYValue) {
+		if (currentYValue > _localMin)
+			return false;
+		_localMin = currentYValue;
+		return true;
+	}
+
+	boolean DirectionChanged(float currentYValue) {
+		if (_previousY < 0 && currentYValue >= 0) // moving down (negative acceleration)
+		{
+			_previousChangeDirY = currentYValue;
+			return true;
+		} else if (_previousY >= 0 && currentYValue < 0) {
+			_previousChangeDirY = currentYValue;
+			return true;
+		}
+		return false;
+	}
+
+	boolean IsNoise (float currentYValue)
+	{
+		if(Math.abs(_previousChangeDirY)+ Math.abs(currentYValue) <= NOISE)return true;
+		return false;
+	}
+
 	protected final void startTimerNow()
 	{
 		new CountDownTimer((time * 1000), 100) {
@@ -171,8 +239,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 	  	sectv.setText(Integer.toString(time%60));
 	}
 	
-
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -186,7 +252,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 			startTimerNow();
 		}
 	};
-	
 	
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
