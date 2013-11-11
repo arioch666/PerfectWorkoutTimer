@@ -8,8 +8,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +23,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	private int time; //in seconds
 	private TextView mintv, sectv;
+	private Vibrator vibrator;
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	Boolean started;
@@ -44,6 +47,9 @@ public class MainActivity extends Activity implements SensorEventListener{
 		
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
+		
+		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+		
 		initilizeSensors();
 	}
 
@@ -112,6 +118,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		if(accelerometer!= null && event.sensor.getType() == accelerometer.getType())
 		{	
 			shakeDetect(event);
+			faceDetect(event);
 		}
 		else if(proximitySensor!=null && event.sensor.getType() == proximitySensor.getType())
 		{
@@ -166,6 +173,37 @@ public class MainActivity extends Activity implements SensorEventListener{
 		return true;
 	}
 
+	private void faceDetect(SensorEvent event){//is device face-up or face-down?
+		//vibrates on flip
+		float z = event.values[2];
+		
+		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && IsValidDirectionChange(z, event.timestamp)){
+			if(z < 0){//face-down
+				Log.i("faceDetect", ": in facedetect - flipped down");
+				//Toast.makeText(this, "Face down!", Toast.LENGTH_SHORT).show();	
+				try{
+					vibrator.vibrate(1000);
+				}
+				catch(Exception e){
+					Log.i("vibro",  e.toString());
+					
+				}
+			}
+			else{//face-up
+				Log.i("faceDetect", ": in facedetect - flipped up");
+				//Toast.makeText(this, "Face up!", Toast.LENGTH_SHORT).show();
+				try{
+					vibrator.vibrate(250);
+				}
+				catch(Exception e){
+					Log.i("vibro",  e.toString());
+					
+				}
+			}
+			
+		}
+	}
+	
 	boolean TooMuchTimeHasPassed(long currentTimestamp) {
 		if ((currentTimestamp - _previousTimestamp) * NS2S < 1)
 			return false;
