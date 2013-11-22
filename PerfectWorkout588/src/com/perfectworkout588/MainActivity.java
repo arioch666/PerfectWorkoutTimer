@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,6 +28,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	Boolean started;
+	final float NOISE = (float) 0.8;
+	final float NS2S = 1.0f / 1000000000.0f;
+	float _previousY;
+	int numberOfDirectionChanges = 0;
+	float _previousChangeDirY = 0;
+	long _previousTimestamp = 0;
+	float _localMax = 0;
+	float _localMin = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +43,15 @@ public class MainActivity extends Activity implements SensorEventListener{
 		setContentView(R.layout.activity_main);
 		
 		Button button;
-		time = 70;
+		time = 60;
 		started = false;
 		mintv = (TextView)findViewById(R.id.tvMin);
 		mintv.setText(Integer.toString(time/60));
 		
 		sectv = (TextView)findViewById(R.id.tvSec);
+		if(time == 0 || (time%60)==0)
+			sectv.setText("00");
+		else 
 		sectv.setText(Integer.toString(time%60));
 		
 		button = (Button)findViewById(R.id.btnStart);
@@ -51,6 +63,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		
 		initilizeSensors();
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	private void initilizeSensors()
@@ -128,23 +141,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	private void detectProximity(SensorEvent event)
 	{
-		// TODO Auto-generated method stub
 		if(!started && event.values[0] == 0)
 		{
 			started=true;
 			startTimerNow();
 		}
-//		((TextView) findViewById(R.id.stream)).setText("x:"+event.values[0]+" y:"+event.values[1]+" z:"+event.values[2]);
+		else if(started && event.values[0] == 0)
+		{
+			started = false;
+			pauseTimer();
+		}
 	}
 
-	final float NOISE = (float) 2.0;
-	final float NS2S = 1.0f / 1000000000.0f;
-	float _previousY;
-	int numberOfDirectionChanges = 0;
-	float _previousChangeDirY = 0;
-	long _previousTimestamp = 0;
-	float _localMax = 0;
-	float _localMin = 0;
+	
 	private void shakeDetect(SensorEvent event)
 	{
 		if (event.sensor.getType() != Sensor.TYPE_LINEAR_ACCELERATION)
@@ -152,7 +161,10 @@ public class MainActivity extends Activity implements SensorEventListener{
 		float y = event.values[1];
 
 		if (IsValidDirectionChange(y, event.timestamp))
+		{
 			numberOfDirectionChanges += 1;
+			Toast.makeText(this, "validDirection", Toast.LENGTH_SHORT).show();
+		}
 		
 		if (numberOfDirectionChanges == 6) // 3 taps
 		{
@@ -164,10 +176,16 @@ public class MainActivity extends Activity implements SensorEventListener{
 	
 	boolean IsValidDirectionChange(float currentYValue, long currentTimestamp)
 	{
-		if(TooMuchTimeHasPassed(currentTimestamp)) return false;
-		if(IsLocalMax(currentYValue) || IsLocalMin(currentYValue)) return false;
+		if(TooMuchTimeHasPassed(currentTimestamp))
+		{
+			return false;
+		}
+		if(IsLocalMax(currentYValue) || IsLocalMin(currentYValue))
+		{
+			return false;
+		}
 		if(!DirectionChanged(currentYValue)) return false;
-		if(IsNoise(currentYValue)) return false;
+		//if(IsNoise(currentYValue)) return false;
 		_previousY = currentYValue;
 		_previousTimestamp = currentTimestamp;
 		return true;
@@ -248,7 +266,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	protected final void startTimerNow()
 	{
-		new CountDownTimer((time * 1000), 100) {
+		countdownTimer = new CountDownTimer((time * 1000), 100) {
 		
 		int seconds = time;
 		int mins, secs;
@@ -269,12 +287,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 	     }
 
 	     public void onFinish() {
-	       
+	    	 
 	     }
-	  }.start();
-	
+	  };
+	  	
+	  	countdownTimer.start();
+	  	
 	  	mintv.setText(Integer.toString(time/60));
 	  	sectv.setText(Integer.toString(time%60));
+	}
+	
+	protected final void pauseTimer()
+	{
+		countdownTimer.cancel();
 	}
 	
 	@Override
@@ -285,8 +310,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	}
 	
 	View.OnClickListener startTimer = new OnClickListener(){
-		public void onClick(View v){
-			
+		public void onClick(View v){			
 			startTimerNow();
 		}
 	};
@@ -294,10 +318,12 @@ public class MainActivity extends Activity implements SensorEventListener{
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
 			//doesn't stop the timer...
-			mintv.setText(Integer.toString(time/60));
-			sectv.setText(Integer.toString(time%60));
+			pauseTimer();
+//			mintv.setText(Integer.toString(time/60));
+//			sectv.setText(Integer.toString(time%60));
 		}
 	};
+	private CountDownTimer countdownTimer;
 	
 	@Override
 	protected void onResume()
