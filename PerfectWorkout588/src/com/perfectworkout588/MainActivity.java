@@ -60,27 +60,28 @@ public class MainActivity extends Activity implements SensorEventListener{
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
 		
-		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-		
 		initilizeSensors();
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	private void initilizeSensors()
 	{
-		if(initializeAccelerometer())
+		if(accelerometer == null && vibrator == null)
 		{
-			if(initializeProximitySensor())
+			if(initializeAccelerometer())
 			{
-				Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();		
+				if(initializeProximitySensor())
+				{
+					Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();		
+				}
+				else
+				{
+					Toast.makeText(this, "initialization failed", Toast.LENGTH_SHORT).show();
+				}
 			}
-			else
-			{
-				Toast.makeText(this, "initialization failed", Toast.LENGTH_SHORT).show();
-			}
+			vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		}
 	}
-	
 	private boolean initializeProximitySensor()
 	{
 		Sensor defaultProximitySensor = ((SensorManager) 
