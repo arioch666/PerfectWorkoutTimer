@@ -1,6 +1,7 @@
 package com.perfectworkout588;
 
-
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -25,6 +26,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	private int time; //in seconds
 	private TextView mintv, sectv;
 	private Vibrator vibrator;
+	private Timer waitTimer;
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	Boolean started;
@@ -60,23 +62,27 @@ public class MainActivity extends Activity implements SensorEventListener{
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
 		
+		Log.i("onCreate", "initializeSensors()");
 		initilizeSensors();
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
 	private void initilizeSensors()
 	{
+		Log.i("initializeSensors", "Initializing sensors");
 		if(accelerometer == null && vibrator == null)
 		{
 			if(initializeAccelerometer())
 			{
 				if(initializeProximitySensor())
 				{
-					Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();		
+					Toast.makeText(this, "Initialization Complete", Toast.LENGTH_SHORT).show();	
+					Log.i("initSensors", "Initialization complete");
 				}
 				else
 				{
 					Toast.makeText(this, "initialization failed", Toast.LENGTH_SHORT).show();
+					Log.i("initSensors", "Initialization failed");
 				}
 			}
 			vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
@@ -95,6 +101,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			proximitySensor = defaultProximitySensor;
 			Toast.makeText(this, "Proximity Sensor set", Toast.LENGTH_SHORT).show();
+			Log.i("initProximity", "Proximity sensor set");
 			return true;
 		}
 	}
@@ -114,6 +121,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			accelerometer = defaultAccelerometer;
 			Toast.makeText(this, "Accelerometer Set", Toast.LENGTH_SHORT).show();
+			Log.i("initAccelerometer", "Accelerometer set");
 			return true;
 		}
 //		TextView stream = (TextView) context.findViewById(R.id.stream);
@@ -146,11 +154,13 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			started=true;
 			startTimerNow();
+			Log.i("detectProximity", "timer started");
 		}
 		else if(started && event.values[0] == 0)
 		{
 			started = false;
 			pauseTimer();
+			Log.i("detectProximity", "timer paused");
 		}
 	}
 
@@ -169,6 +179,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		
 		if (numberOfDirectionChanges == 6) // 3 taps
 		{
+			Log.i("shakeDetect", "3 taps triggered");
 			Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();		
 			numberOfDirectionChanges = 0;
 			_previousTimestamp = 0;
@@ -192,31 +203,53 @@ public class MainActivity extends Activity implements SensorEventListener{
 		return true;
 	}
 
-	private void faceDetect(SensorEvent event){//is device face-up or face-down?
-		//vibrates on flip
+	// Detect face-up and face-down orientation
+	// Perform task(s) upon detection
+	// Cancel previous detection when user changes mind and flips phone back over before task begins
+	private void faceDetect(SensorEvent event){
+
 		float z = event.values[2];
-		
+				
+		//detect facing upon a new orientation change
 		if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER && IsValidDirectionChange(z, event.timestamp)){
+			//cancel timer if new flip
+			try{
+				waitTimer.cancel();
+				Log.i("waitTimer", "canceled");
+			}catch(Exception e){
+				Log.i("waitTimer", "cancel exception");
+			}
+			//face detection
 			if(z < 0){//face-down
+				waitTimer = new Timer();
 				Log.i("faceDetect", ": in facedetect - flipped down");
-				//Toast.makeText(this, "Face down!", Toast.LENGTH_SHORT).show();	
+				//perform a task after a delay
 				try{
-					vibrator.vibrate(1000);
+					waitTimer.schedule(new TimerTask(){
+						public void run(){
+							//task
+							vibrator.vibrate(1000);
+						}
+					}, 2000);					
 				}
 				catch(Exception e){
-					Log.i("vibro",  e.toString());
-					
+					Log.i("vibro",  e.toString());					
 				}
 			}
 			else{//face-up
+				waitTimer = new Timer();				
 				Log.i("faceDetect", ": in facedetect - flipped up");
-				//Toast.makeText(this, "Face up!", Toast.LENGTH_SHORT).show();
+				//perform a task after a delay
 				try{
-					vibrator.vibrate(250);
+					waitTimer.schedule(new TimerTask(){
+						public void run(){
+							//task
+							vibrator.vibrate(250);
+						}
+					}, 2000);	
 				}
 				catch(Exception e){
-					Log.i("vibro",  e.toString());
-					
+					Log.i("vibro",  e.toString());					
 				}
 			}
 			
