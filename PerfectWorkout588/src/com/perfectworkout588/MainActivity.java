@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements SensorEventListener{
 
-	private int time; //in seconds
+	private int time, increment; //in seconds
 	private TextView mintv, sectv;
 	private Vibrator vibrator;
 	private Timer waitTimer;
@@ -68,6 +68,12 @@ public class MainActivity extends Activity implements SensorEventListener{
 		button = (Button)findViewById(R.id.btnReset);
 		button.setOnClickListener(resetTimer);
 		
+		button = (Button)findViewById(R.id.btnDecrease);
+		button.setOnClickListener(decreaseTime);
+		
+		button = (Button)findViewById(R.id.btnIncrease);
+		button.setOnClickListener(increaseTime);
+		
 		Log.i("onCreate", "initializeSensors()");
 		initilizeSensors();
 		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
@@ -107,6 +113,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 			vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 		}
 	}
+	
 	private boolean initializeProximitySensor()
 	{
 		Sensor defaultProximitySensor = ((SensorManager) 
@@ -162,7 +169,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		}
 		else if(accelerometer!= null && event.sensor.getType() == accelerometer.getType())
 		{	
-			faceDetect(event);
+			//faceDetect(event);
 		}
 		else if(proximitySensor!=null && event.sensor.getType() == proximitySensor.getType())
 		{
@@ -185,7 +192,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 			Log.i("detectProximity", "timer paused");
 		}
 	}
-
 	
 	private void shakeDetect(SensorEvent event)
 	{
@@ -320,6 +326,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 		return false;
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	//////////// TIMER FUNCTIONS /////////////////
 	protected final void startTimerNow()
 	{
 		countdownTimer = new CountDownTimer((time * 1000), 100) {
@@ -375,29 +389,47 @@ public class MainActivity extends Activity implements SensorEventListener{
 	protected final void pauseTimer()
 	{
 		countdownTimer.cancel();
+		Log.i("pauseTimer", "timer paused");
 	}
-	
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-	
+		
 	View.OnClickListener startTimer = new OnClickListener(){
 		public void onClick(View v){			
 			startTimerNow();
+			Log.i("startTimer", "timer started");
 		}
 	};
 	
+	//sometimes crashes if timer not running
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
-			//doesn't stop the timer...
 			pauseTimer();
 //			mintv.setText(Integer.toString(time/60));
 //			sectv.setText(Integer.toString(time%60));
+			Log.i("resetTimer", "timer reset");
 		}
 	};
+	
+	View.OnClickListener decreaseTime = new OnClickListener(){
+		public void onClick(View v){
+			//empty stub
+			//(private int increment) already declared
+			Log.i("decreaseTime", "time decremented");
+		}
+	};
+	
+	View.OnClickListener increaseTime = new OnClickListener(){
+		public void onClick(View v){
+			//empty stub
+			//(private int increment) already declared
+			Log.i("increaseTime", "time incremented");
+		}
+	};
+	
+	public void setIncrement(int secs){
+		//empty stub
+		//(private int increment) already declared
+	}
+	
 	private CountDownTimer countdownTimer;
 	
 	@Override
