@@ -9,5 +9,7 @@
     <string name="_0">0</string>
     <string name="_colon">:</string>
     <string name="_00">00</string>
+    <string name="increase_time">Increase\nTime</string>
+    <string name="decrease_time">Decrease\nTime</string>
 
 </resources>
