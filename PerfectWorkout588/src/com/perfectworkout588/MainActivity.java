@@ -7,6 +7,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
@@ -38,6 +41,9 @@ public class MainActivity extends Activity implements SensorEventListener{
 	long _previousTimestamp = 0;
 	float _localMax = 0;
 	float _localMin = 0;
+	private SoundPool soundPool;
+	boolean loaded = false;
+	private int beepSound, hornSound;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +70,19 @@ public class MainActivity extends Activity implements SensorEventListener{
 		
 		Log.i("onCreate", "initializeSensors()");
 		initilizeSensors();
+		this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+		soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+		soundPool.setOnLoadCompleteListener(new OnLoadCompleteListener() {
+			
+			@Override
+			public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+				loaded = true;
+			}
+		});
+		beepSound = soundPool.load(this, R.raw.beep, 1);
+		hornSound = soundPool.load(this, R.raw.airhorn, 2);
+		
+		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
@@ -320,11 +339,30 @@ public class MainActivity extends Activity implements SensorEventListener{
 	    		 
 	             mintv.setText(Integer.toString(mins));
 	             sectv.setText(s);
+	             
+	             if(seconds == 10 || (seconds <=5 && seconds > 0))
+	             {
+	            	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+	            	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+	            	 
+	            	 if(loaded)
+	            	 {
+	            		 soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+	            	 }
+	             }
 	    	 }
 	     }
 
 	     public void onFinish() {
-	    	 
+	    	 pauseTimer();
+	    	 time = 60;
+	    	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        	 
+        	 if(loaded)
+        	 {
+        		 soundPool.play(hornSound, maxVolume , maxVolume, 1, 0, 1f);
+        	 }
 	     }
 	  };
 	  	
