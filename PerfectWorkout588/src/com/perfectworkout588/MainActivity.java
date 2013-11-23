@@ -30,7 +30,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	Boolean started;
-	final float NOISE = (float) 0.8;
+	final float NOISE = (float) 2.0;
 	final float NS2S = 1.0f / 1000000000.0f;
 	float _previousY;
 	int numberOfDirectionChanges = 0;
@@ -111,7 +111,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		
 		Sensor defaultAccelerometer = ((SensorManager) 
-				getSystemService(Context.SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				getSystemService(Context.SENSOR_SERVICE)).getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 		
 		if (defaultAccelerometer == null)
 		{
@@ -137,9 +137,12 @@ public class MainActivity extends Activity implements SensorEventListener{
 	@Override
 	public void onSensorChanged(SensorEvent event)
 	{
-		if(accelerometer!= null && event.sensor.getType() == accelerometer.getType())
-		{	
+		if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION)
+		{
 			shakeDetect(event);
+		}
+		else if(accelerometer!= null && event.sensor.getType() == accelerometer.getType())
+		{	
 			faceDetect(event);
 		}
 		else if(proximitySensor!=null && event.sensor.getType() == proximitySensor.getType())
@@ -197,7 +200,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 			return false;
 		}
 		if(!DirectionChanged(currentYValue)) return false;
-		//if(IsNoise(currentYValue)) return false;
+		if(IsNoise(currentYValue)) return false;
 		_previousY = currentYValue;
 		_previousTimestamp = currentTimestamp;
 		return true;
