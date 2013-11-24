@@ -15,8 +15,11 @@ import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -33,7 +36,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	Boolean started;
-	final float NOISE = (float) 2.0;
+	final float NOISE = (float) 2.5;
 	final float NS2S = 1.0f / 1000000000.0f;
 	float _previousY;
 	int numberOfDirectionChanges = 0;
@@ -326,13 +329,6 @@ public class MainActivity extends Activity implements SensorEventListener{
 		return false;
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
-
 	//////////// TIMER FUNCTIONS /////////////////
 	protected final void startTimerNow()
 	{
@@ -452,5 +448,32 @@ public class MainActivity extends Activity implements SensorEventListener{
 		super.onPause();
 		sensorManager.unregisterListener(this);
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    // Inflate the menu items for use in the action bar
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    return super.onCreateOptionsMenu(menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle presses on the action bar items
+	    switch (item.getItemId()) {
+	        case R.id.action_settings:
+	            openSettings();
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+
+	void openSettings() {
+	    Intent intent = new Intent(this, SettingsActivity.class);
+	    startActivity(intent);
+	}
+	
+
 
 }

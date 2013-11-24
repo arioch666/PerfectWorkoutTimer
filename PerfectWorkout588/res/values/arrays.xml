@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="melody">Melody</string>
+	<string name="vibration">Vibration</string>
+	<string name="melodyAndVibration">Melody and vibration</string>
+    <string name="beep">Beep</string>
+	<string name="honk">Honk</string>
+	<string name="applause">Applause</string>
+	
+	<string-array name="alert_type_array">
+        <item >@string/melody</item>
+        <item >@string/vibration</item>
+        <item >@string/melodyAndVibration</item>
+    </string-array>
+    <string-array name="alert_tone_array">
+        <item >@string/beep</item>
+        <item >@string/honk</item>
+        <item >@string/applause</item>
+    </string-array>
+    
+</resources>
