@@ -29,14 +29,14 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements SensorEventListener{
 
-	private int time, increment; //in seconds
+	private int time = 60, increment, lastTimerValue; //in seconds
 	private TextView mintv, sectv;
 	private Vibrator vibrator;
 	private Timer waitTimer;
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
-	Boolean started;
-	final float NOISE = (float) 2.5;
+	public Boolean started;
+	final float NOISE = (float) 0.4;
 	final float NS2S = 1.0f / 1000000000.0f;
 	float _previousY;
 	int numberOfDirectionChanges = 0;
@@ -52,19 +52,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+		increment= 10;
 		Button button;
-		time = 60;
+		lastTimerValue = time;
 		started = false;
 		mintv = (TextView)findViewById(R.id.tvMin);
-		mintv.setText(Integer.toString(time/60));
-		
 		sectv = (TextView)findViewById(R.id.tvSec);
-		if(time == 0 || (time%60)==0)
-			sectv.setText("00");
-		else 
-		sectv.setText(Integer.toString(time%60));
-		
+		updateDisplay();		
+
 		button = (Button)findViewById(R.id.btnStart);
 		button.setOnClickListener(startTimer);
 		
@@ -205,13 +200,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 		if (IsValidDirectionChange(y, event.timestamp))
 		{
 			numberOfDirectionChanges += 1;
-			Toast.makeText(this, "validDirection", Toast.LENGTH_SHORT).show();
+			///Toast.makeText(this, "validDirection", Toast.LENGTH_SHORT).show();
 		}
 		
 		if (numberOfDirectionChanges == 6) // 3 taps
 		{
 			Log.i("shakeDetect", "3 taps triggered");
-			Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();		
+			Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();	
+			increaseTimer();
 			numberOfDirectionChanges = 0;
 			_previousTimestamp = 0;
 		}	
@@ -332,73 +328,100 @@ public class MainActivity extends Activity implements SensorEventListener{
 	//////////// TIMER FUNCTIONS /////////////////
 	protected final void startTimerNow()
 	{
-		countdownTimer = new CountDownTimer((time * 1000), 100) {
+		started = true;
+		countdownTimer = new CountDownTimer((lastTimerValue * 1000), 100) 
+		{
 		
-		int seconds = time;
-		int mins, secs;
-		String s;
-		
-	     public void onTick(long millisUntilFinished) {
-	    	 if (Math.round((float)millisUntilFinished / 1000.0f) != seconds){
-	    		 mins = --seconds/60;
-	    		 secs = seconds%60;
-	    		 if(secs < 10)
-	    			 s = "0" + secs;
-	    		 else
-	    			 s = Integer.toString(secs);
-	    		 
-	             mintv.setText(Integer.toString(mins));
-	             sectv.setText(s);
-	             
-	             if(seconds == 10 || (seconds <=5 && seconds > 0))
-	             {
-	            	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-	            	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-	            	 
-	            	 if(loaded)
-	            	 {
-	            		 soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
-	            	 }
-	             }
-	    	 }
-	     }
+			int seconds = lastTimerValue;
+			int mins, secs;
+			String s;
+			
+		     public void onTick(long millisUntilFinished) {
+		    	 if (Math.round((float)millisUntilFinished / 1000.0f) != seconds){
+		    		 mins = --seconds/60;
+		    		 secs = seconds%60;
+		    		 lastTimerValue = seconds;
+		    		 if(secs < 10)
+		    			 s = "0" + secs;
+		    		 else
+		    			 s = Integer.toString(secs);
+		    		 mintv.setText(mins<10?"0"+mins:Integer.toString(mins));
+		     	  	 sectv.setText(secs<10?"0"+secs:Integer.toString(secs));
+//		             mintv.setText(Integer.toString(mins));
+//		             sectv.setText(s);
+		             
+		             if(seconds == 10 || (seconds <=5 && seconds > 0))
+		             {
+		            	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		            	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		            	 
+		            	 if(loaded)
+		            	 {
+		            		 soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+		            	 }
+		             }
+		    	 }
+		     }
+	
+		     public void onFinish() {
+		    	 pauseTimer();
+		    	 lastTimerValue = time;
+		    	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+	        	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+	        	 
+	        	 if(loaded)
+	        	 {
+	        		 soundPool.play(hornSound, maxVolume , maxVolume, 1, 0, 1f);
+	        	 }
+	        	 updateDisplay();
+		     }
 
-	     public void onFinish() {
-	    	 pauseTimer();
-	    	 time = 60;
-	    	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-        	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        	 
-        	 if(loaded)
-        	 {
-        		 soundPool.play(hornSound, maxVolume , maxVolume, 1, 0, 1f);
-        	 }
-	     }
+			
 	  };
 	  	
 	  	countdownTimer.start();
+	  	((Button)findViewById(R.id.btnStart)).setText(getResources().getString(R.string.pause));
 	  	
-	  	mintv.setText(Integer.toString(time/60));
-	  	sectv.setText(Integer.toString(time%60));
 	}
 	
 	protected final void pauseTimer()
 	{
+		started = false;
 		countdownTimer.cancel();
+		((Button)findViewById(R.id.btnStart)).setText(getResources().getString(R.string.start));
 		Log.i("pauseTimer", "timer paused");
 	}
 		
 	View.OnClickListener startTimer = new OnClickListener(){
-		public void onClick(View v){			
-			startTimerNow();
-			Log.i("startTimer", "timer started");
+		public void onClick(View v){
+			
+			if(!started)
+			{
+				startTimerNow();
+				Log.i("startTimer", "timer started");
+			}
+			else
+			{
+				pauseTimer();
+				Log.i("pause", "timer paused");
+			}
 		}
 	};
 	
 	//sometimes crashes if timer not running
 	View.OnClickListener resetTimer = new OnClickListener(){
 		public void onClick(View v){
-			pauseTimer();
+			boolean tempStarted = started;
+			if(started)
+			{
+				pauseTimer();
+			}
+			lastTimerValue = time;
+			updateDisplay();
+			if(tempStarted)
+			{
+				startTimerNow();
+			}
 //			mintv.setText(Integer.toString(time/60));
 //			sectv.setText(Integer.toString(time%60));
 			Log.i("resetTimer", "timer reset");
@@ -407,16 +430,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 	
 	View.OnClickListener decreaseTime = new OnClickListener(){
 		public void onClick(View v){
-			//empty stub
-			//(private int increment) already declared
+			decreaseTimer();
 			Log.i("decreaseTime", "time decremented");
 		}
 	};
 	
 	View.OnClickListener increaseTime = new OnClickListener(){
 		public void onClick(View v){
-			//empty stub
-			//(private int increment) already declared
+			increaseTimer();
 			Log.i("increaseTime", "time incremented");
 		}
 	};
@@ -473,7 +494,45 @@ public class MainActivity extends Activity implements SensorEventListener{
 	    Intent intent = new Intent(this, SettingsActivity.class);
 	    startActivity(intent);
 	}
-	
 
+	public void decreaseTimer() {
+		boolean tempStarted = started;
+		if(started)
+		{
+			pauseTimer();
+		}
+		lastTimerValue-=increment;
+		if(tempStarted)
+		{
+			startTimerNow();
+		}		
+		else
+		{
+			updateDisplay();
+			
+		}
+	}
+
+	public void increaseTimer() {
+		boolean tempStarted = started;
+		if(started)
+		{
+			pauseTimer();
+		}
+		lastTimerValue+=increment;
+		if(tempStarted)
+		{
+			startTimerNow();
+		}
+		else
+		{
+			updateDisplay();
+		}
+	}
+	
+	public void updateDisplay() {
+		mintv.setText((lastTimerValue/60)<10?"0"+(lastTimerValue/60):Integer.toString(lastTimerValue/60));
+ 	  	 sectv.setText((lastTimerValue%60)<10?"0"+(lastTimerValue%60):Integer.toString(lastTimerValue%60));
+	}
 
 }
