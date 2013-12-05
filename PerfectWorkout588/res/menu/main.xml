@@ -1,9 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/action_settings"
-        android:icon="@drawable/ic_action_settings"
-        android:showAsAction="ifRoom"/>
+        android:id="@+id/action_settings_alert_type"
+        android:title="@string/alert_type"
+        android:showAsAction="never"/>
+    
+    <item
+        android:id="@+id/action_settings_alert_tone"
+        android:title="@string/alert_tone"
+        android:showAsAction="never"/>
+        
+    <item
+        android:id="@+id/action_settings_time"
+        android:title="@string/timer_time"
+        android:showAsAction="never"/>
 
 </menu>

@@ -15,8 +15,8 @@ import android.os.CountDownTimer;
 import android.os.Vibrator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,6 +48,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	private SoundPool soundPool;
 	boolean loaded = false;
 	private int beepSound, hornSound;
+	WorkoutTimer _workoutTimer;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,12 @@ public class MainActivity extends Activity implements SensorEventListener{
 		beepSound = soundPool.load(this, R.raw.beep, 1);
 		hornSound = soundPool.load(this, R.raw.airhorn, 2);
 		
+		_workoutTimer = new WorkoutTimer();
+		_workoutTimer.Minutes = 1;
+		_workoutTimer.Seconds = 0;
+		_workoutTimer.Alert = new Alert();
+		_workoutTimer.Alert.Tone = "beep"; 
+		_workoutTimer.Alert.Type = 2; // melody & vibration
 		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
@@ -498,17 +505,34 @@ public class MainActivity extends Activity implements SensorEventListener{
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
 	    switch (item.getItemId()) {
-	        case R.id.action_settings:
-	            openSettings();
+	        case R.id.action_settings_alert_type:
+	            editAlertType();
 	            return true;
+	        case R.id.action_settings_alert_tone:
+	            editAlertTone();
+	            return true;
+	        case R.id.action_settings_time:
+	            editTime();
+	            return true;
+
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
 	}
 
-	void openSettings() {
-	    Intent intent = new Intent(this, SettingsActivity.class);
-	    startActivity(intent);
+	void editTime() {
+		DialogFragment dialog = new TimerEditTimeDialogFragment();
+		dialog.show(getFragmentManager(), "timerTime");
+	}
+
+	void editAlertTone() {
+		DialogFragment dialog = new TimerEditAlertToneDialogFragment();
+		dialog.show(getFragmentManager(), "AlertTone");
+	}
+
+	void editAlertType() {
+		TimerEditAlertTypeDialogFragment dialog = new TimerEditAlertTypeDialogFragment();
+		dialog.show(getFragmentManager(), "AlertType");
 	}
 
 	public void decreaseTimer() {

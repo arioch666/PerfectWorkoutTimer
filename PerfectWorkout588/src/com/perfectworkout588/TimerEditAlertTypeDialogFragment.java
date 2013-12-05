@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.app.DialogFragment;
 
 public class TimerEditAlertTypeDialogFragment extends DialogFragment {
-    public int AlertType = 0; // default to melody
+    public int AlertType = 2; // default to melody & vibration
 	
 	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -15,8 +15,7 @@ public class TimerEditAlertTypeDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_edit_alert_type_title);
        
-        int currentAlertType = 0;  // TODO: store in settings file so this settings persist - probably out of scope
-        builder.setSingleChoiceItems(R.array.alert_type_array, currentAlertType, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(R.array.alert_type_array, AlertType, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
             	AlertType = which;
             }

@@ -23,12 +23,13 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="dialog_edit_time_title">Edit time</string>
-    <string name="activity_settings_label">Settings</string>
     <string name="dialot_edit_time_value_minutes">60</string>
     <string name="dialot_edit_time_label_minutes">Minutes</string>
     <string name="dialot_edit_time_label_seconds">Seconds</string>
     <string name="dialot_edit_time_value_seconds">00</string>
-    <string name="dialog_edit_alert_type_title">Alert type</string>
-    <string name="dialog_edit_alert_tone_title">Alert tone</string>
+    <string name="dialog_edit_alert_type_title">Edit alert type</string>
+    <string name="dialog_edit_alert_tone_title">Edit alert tone</string>
     <string name="pause">Pause</string>
+    <string name="dialog_edit_time_label_increments">Increments</string>
+    <string name="app_label">Perfect Workout</string>
 </resources>
