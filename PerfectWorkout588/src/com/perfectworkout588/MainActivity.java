@@ -13,6 +13,7 @@ import android.media.SoundPool.OnLoadCompleteListener;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -36,7 +37,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	Sensor accelerometer, proximitySensor;
 	SensorManager sensorManager;
 	public Boolean started;
-	final float NOISE = (float) 0.4;
+	final float NOISE = (float) 3.0;
 	final float NS2S = 1.0f / 1000000000.0f;
 	float _previousY;
 	int numberOfDirectionChanges = 0;
@@ -177,14 +178,26 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	private void detectProximity(SensorEvent event)
 	{
+		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+	 
+		
 		if(!started && event.values[0] == 0)
 		{
+			if(loaded)
+			{
+				soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+			}	
 			started=true;
 			startTimerNow();
 			Log.i("detectProximity", "timer started");
 		}
 		else if(started && event.values[0] == 0)
 		{
+			if(loaded)
+			{
+				soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+			}	
 			started = false;
 			pauseTimer();
 			Log.i("detectProximity", "timer paused");
@@ -326,6 +339,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 	}
 
 	//////////// TIMER FUNCTIONS /////////////////
+	@SuppressLint("NewApi")
 	protected final void startTimerNow()
 	{
 		started = true;
@@ -350,7 +364,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 //		             mintv.setText(Integer.toString(mins));
 //		             sectv.setText(s);
 		             
-		             if(seconds == 10 || (seconds <=5 && seconds > 0))
+		             if(seconds == 30 || seconds == 10 || (seconds <=5 && seconds > 0))
 		             {
 		            	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 		            	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
@@ -381,14 +395,16 @@ public class MainActivity extends Activity implements SensorEventListener{
 	  	
 	  	countdownTimer.start();
 	  	((Button)findViewById(R.id.btnStart)).setText(getResources().getString(R.string.pause));
-	  	
+	  	((Button)findViewById(R.id.btnStart)).setBackground((getResources().getDrawable(R.drawable.bluebutton)));
 	}
 	
+	@SuppressLint("NewApi")
 	protected final void pauseTimer()
 	{
 		started = false;
 		countdownTimer.cancel();
 		((Button)findViewById(R.id.btnStart)).setText(getResources().getString(R.string.start));
+		((Button)findViewById(R.id.btnStart)).setBackground((getResources().getDrawable(R.drawable.greenbutton)));
 		Log.i("pauseTimer", "timer paused");
 	}
 		
@@ -501,7 +517,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			pauseTimer();
 		}
-		lastTimerValue-=increment;
+		if(lastTimerValue-increment>0)
+		{
+			lastTimerValue-=increment;
+		}
+		else
+		{
+			lastTimerValue=1;
+		}
 		if(tempStarted)
 		{
 			startTimerNow();
