@@ -34,11 +34,4 @@ public class TimerEditAlertTypeDialogFragment extends DialogFragment {
         // Create the AlertDialog object and return it
         return builder.create();
     }
-    
-	static public enum AlertTypeEnum
-    {
-    	melody,
-    	vibration,
-    	melodyAndVibration,
-    }
 }
