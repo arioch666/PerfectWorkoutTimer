@@ -16,7 +16,12 @@ import android.os.Vibrator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.KeyguardManager;
+import android.app.KeyguardManager.KeyguardLock;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -95,7 +100,13 @@ public class MainActivity extends Activity implements SensorEventListener{
 		_workoutTimer.Alert.Tone = "beep"; 
 		_workoutTimer.Alert.Type = 2; // melody & vibration
 		
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+		filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        mReceiver = new ScreenReceiver();
+        mReceiver.setMainActivity(this);
+        registerReceiver(mReceiver, filter);
 	}
 
 	private void initilizeSensors()
@@ -185,15 +196,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	private void detectProximity(SensorEvent event)
 	{
-		AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-		float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		
 	 
 		
 		if(!started && event.values[0] == 0)
 		{
 			if(loaded)
 			{
-				soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+				soundPool.play(beepSound, getMaxVolume() , getMaxVolume(), 1, 0, 1f);
 			}	
 			started=true;
 			startTimerNow();
@@ -203,7 +213,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			if(loaded)
 			{
-				soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+				soundPool.play(beepSound, getMaxVolume() , getMaxVolume(), 1, 0, 1f);
 			}	
 			started = false;
 			pauseTimer();
@@ -211,6 +221,43 @@ public class MainActivity extends Activity implements SensorEventListener{
 		}
 	}
 	
+	/**
+	 * @return the audioManager
+	 */
+	public AudioManager getAudioManager() {
+		if(audioManager == null)
+		{
+			audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+		}
+		return audioManager;
+	}
+
+	/**
+	 * @param audioManager the audioManager to set
+	 */
+	public void setAudioManager(AudioManager audioManager) {
+		this.audioManager = audioManager;
+	}
+
+	/**
+	 * @return the maxVolume
+	 */
+	public Float getMaxVolume() {
+		if(maxVolume == null)
+		{
+			maxVolume = (float) getAudioManager().getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+ 
+		}
+		return maxVolume;
+	}
+
+	/**
+	 * @param maxVolume the maxVolume to set
+	 */
+	public void setMaxVolume(Float maxVolume) {
+		this.maxVolume = maxVolume;
+	}
+
 	private void shakeDetect(SensorEvent event)
 	{
 		if (event.sensor.getType() != Sensor.TYPE_LINEAR_ACCELERATION)
@@ -373,12 +420,10 @@ public class MainActivity extends Activity implements SensorEventListener{
 		             
 		             if(seconds == 30 || seconds == 10 || (seconds <=5 && seconds > 0))
 		             {
-		            	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-		            	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 		            	 
 		            	 if(loaded)
 		            	 {
-		            		 soundPool.play(beepSound, maxVolume , maxVolume, 1, 0, 1f);
+		            		 soundPool.play(beepSound, getMaxVolume() , getMaxVolume(), 1, 0, 1f);
 		            	 }
 		             }
 		    	 }
@@ -387,12 +432,10 @@ public class MainActivity extends Activity implements SensorEventListener{
 		     public void onFinish() {
 		    	 pauseTimer();
 		    	 lastTimerValue = time;
-		    	 AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-	        	 float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 	        	 
 	        	 if(loaded)
 	        	 {
-	        		 soundPool.play(hornSound, maxVolume , maxVolume, 1, 0, 1f);
+	        		 soundPool.play(hornSound, getMaxVolume() , getMaxVolume(), 1, 0, 1f);
 	        	 }
 	        	 updateDisplay();
 		     }
@@ -471,26 +514,35 @@ public class MainActivity extends Activity implements SensorEventListener{
 	}
 	
 	private CountDownTimer countdownTimer;
+	private AudioManager audioManager;
+	private Float maxVolume;
+	private IntentFilter filter;
+	private ScreenReceiver mReceiver;
 	
 	@Override
 	protected void onResume()
 	{
 			super.onResume();
-			if(accelerometer!=null)
-			{
-				sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-			}
-			if(proximitySensor!=null)
-			{
-				sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
-			}			
+			registerReceiver(mReceiver, filter);
+			enableSensors();			
+	}
+
+	void enableSensors() {
+		if(accelerometer!=null)
+		{
+			sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+		}
+		if(proximitySensor!=null)
+		{
+			sensorManager.registerListener(this, proximitySensor, SensorManager.SENSOR_DELAY_NORMAL);
+		}
 	}
 	
 	@Override
 	protected void onPause()
 	{
-		super.onPause();
 		sensorManager.unregisterListener(this);
+		super.onPause();
 	}
 	
 	@Override
@@ -582,4 +634,13 @@ public class MainActivity extends Activity implements SensorEventListener{
  	  	 sectv.setText((lastTimerValue%60)<10?"0"+(lastTimerValue%60):Integer.toString(lastTimerValue%60));
 	}
 
+	
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		if(!hasFocus)
+		{
+			unregisterReceiver(mReceiver);
+		}
+	}
+	
 }
