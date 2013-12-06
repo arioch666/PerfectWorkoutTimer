@@ -22,21 +22,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_0"
-            android:textSize="80sp" />
+            android:textSize="90sp" />
 
         <TextView
             android:id="@+id/tvColon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_colon"
-            android:textSize="80sp" />
+            android:textSize="90sp" />
 
         <TextView
             android:id="@+id/tvSec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/_00"
-            android:textSize="80sp"
+            android:textSize="90sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -44,7 +44,7 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/linearLayout1"
-        android:layout_marginTop="12dp" 
+        android:layout_marginTop="120dp" 
         >
 
         <Button
