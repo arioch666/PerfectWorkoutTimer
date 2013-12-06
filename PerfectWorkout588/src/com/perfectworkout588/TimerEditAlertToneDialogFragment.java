@@ -7,23 +7,28 @@ import android.os.Bundle;
 import android.app.DialogFragment;
 
 public class TimerEditAlertToneDialogFragment extends DialogFragment {
-    @Override
+    int _alertTone;
+	
+	@Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the Builder class for convenient dialog construction
+		_alertTone = getArguments().getInt("alertTone");
+
+		// Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_edit_alert_type_title);
        
-        int currentAlertType = 0;  // TODO: store in settings file so this settings persist - probably out of scope
-        builder.setSingleChoiceItems(R.array.alert_tone_array, currentAlertType, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(R.array.alert_tone_array, _alertTone, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
             // The 'which' argument contains the index position
             // of the selected item
+            	_alertTone = which;
             }
         });
         
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                    public void onClick(DialogInterface dialog, int id) {
-                	   // save changes
+                	   EditAlertToneDialogListener activity = (EditAlertToneDialogListener) getActivity();
+                	   activity.OnEditAlertToneComplete(_alertTone);
                    }
                })
                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -34,6 +39,10 @@ public class TimerEditAlertToneDialogFragment extends DialogFragment {
         // Create the AlertDialog object and return it
         return builder.create();
         
-        
     }
+	
+	public interface EditAlertToneDialogListener
+	{
+		public void OnEditAlertToneComplete(int alertType);
+	}
 }

@@ -3,6 +3,10 @@ package com.perfectworkout588;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.perfectworkout588.TimerEditAlertToneDialogFragment.EditAlertToneDialogListener;
+import com.perfectworkout588.TimerEditAlertTypeDialogFragment.EditAlertTypeDialogListener;
+import com.perfectworkout588.TimerEditTimeDialogFragment.EditTimeDialogListener;
+
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -33,9 +37,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements SensorEventListener{
+public class MainActivity extends Activity implements SensorEventListener, EditAlertToneDialogListener, EditAlertTypeDialogListener, EditTimeDialogListener{
 
-	private int time = 60, increment, lastTimerValue; //in seconds
+	private int time = 60, _increment, lastTimerValue; //in seconds
 	private TextView mintv, sectv;
 	private Vibrator vibrator;
 	private Timer waitTimer;
@@ -51,15 +55,16 @@ public class MainActivity extends Activity implements SensorEventListener{
 	float _localMax = 0;
 	float _localMin = 0;
 	private SoundPool soundPool;
+	int _alertTone; 			// 1:beep, 2:airhorn // one based to match soundPool
+	int _alertType;  // 1:melody 2:vibration 3:melody&vibration
 	boolean loaded = false;
 	private int beepSound, hornSound;
-	WorkoutTimer _workoutTimer;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		increment= 10;
+		_increment= 10;
 		Button button;
 		lastTimerValue = time;
 		started = false;
@@ -93,12 +98,8 @@ public class MainActivity extends Activity implements SensorEventListener{
 		beepSound = soundPool.load(this, R.raw.beep, 1);
 		hornSound = soundPool.load(this, R.raw.airhorn, 2);
 		
-		_workoutTimer = new WorkoutTimer();
-		_workoutTimer.Minutes = 1;
-		_workoutTimer.Seconds = 0;
-		_workoutTimer.Alert = new Alert();
-		_workoutTimer.Alert.Tone = "beep"; 
-		_workoutTimer.Alert.Type = 2; // melody & vibration
+		_alertTone = 1;  // beep
+		_alertType = 2;  // melody & vibrate
 		
 //		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
@@ -273,7 +274,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		if (numberOfDirectionChanges == 6) // 3 taps
 		{
 			Log.i("shakeDetect", "3 taps triggered");
-			Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();	
+			//Toast.makeText(this, "3 TAPS TRIGGERED!", Toast.LENGTH_SHORT).show();	
 			increaseTimer();
 			numberOfDirectionChanges = 0;
 			_previousTimestamp = 0;
@@ -574,18 +575,43 @@ public class MainActivity extends Activity implements SensorEventListener{
 
 	void editTime() {
 		DialogFragment dialog = new TimerEditTimeDialogFragment();
+		Bundle args = new Bundle();
+		args.putInt("increment", _increment);
+		dialog.setArguments(args);
 		dialog.show(getFragmentManager(), "timerTime");
 	}
 
 	void editAlertTone() {
 		DialogFragment dialog = new TimerEditAlertToneDialogFragment();
+		Bundle args = new Bundle();
+		args.putInt("alertTone", _alertTone);
+		dialog.setArguments(args);
 		dialog.show(getFragmentManager(), "AlertTone");
 	}
 
 	void editAlertType() {
 		TimerEditAlertTypeDialogFragment dialog = new TimerEditAlertTypeDialogFragment();
+		Bundle args = new Bundle();
+		args.putInt("alertType", _alertType);
+		dialog.setArguments(args);
 		dialog.show(getFragmentManager(), "AlertType");
 	}
+	
+	@Override
+	public void OnEditAlertToneComplete(int alertTone) {
+		_alertTone = alertTone;
+	}
+
+	@Override
+	public void OnEditAlertTypeComplete(int alertType) {
+		_alertType = alertType;
+	}
+	
+	@Override
+	public void OnEditTimeComplete(int increment) {
+		_increment = increment;
+	}
+
 
 	public void decreaseTimer() {
 		boolean tempStarted = started;
@@ -593,9 +619,9 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			pauseTimer();
 		}
-		if(lastTimerValue-increment>0)
+		if(lastTimerValue-_increment>0)
 		{
-			lastTimerValue-=increment;
+			lastTimerValue-=_increment;
 		}
 		else
 		{
@@ -618,7 +644,7 @@ public class MainActivity extends Activity implements SensorEventListener{
 		{
 			pauseTimer();
 		}
-		lastTimerValue+=increment;
+		lastTimerValue+=_increment;
 		if(tempStarted)
 		{
 			startTimerNow();
