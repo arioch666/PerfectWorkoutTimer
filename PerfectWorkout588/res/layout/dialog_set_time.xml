@@ -2,9 +2,11 @@
     android:id="@+id/dialog_set_time"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
     android:orientation="vertical" >
 
-    <TextView
+<!-- <TextView
         android:id="@+id/TextViewSettingsAlertTone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -57,22 +59,33 @@
             android:text="@string/dialot_edit_time_value_minutes"
             android:textAppearance="?android:attr/textAppearanceLarge" />
     </LinearLayout>
+ -->
 
     <TextView
-        android:id="@+id/TextViewIncrement"
+        android:id="@+id/TextViewTimeIncrement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/dialog_edit_time_label_increments"
+        android:gravity="left"
+        android:text="@string/dialog_edit_time_increments"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" 
+        android:gravity="center">
 
         <NumberPicker
             android:id="@+id/numberPickerIncrement"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+        <TextView
+            android:id="@+id/TextViewIncrement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_edit_time_increments_seconds"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
     </LinearLayout>
 

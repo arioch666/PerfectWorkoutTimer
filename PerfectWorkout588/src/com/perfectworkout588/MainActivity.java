@@ -20,12 +20,12 @@ import android.os.Vibrator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DialogFragment;
-import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
-import android.content.BroadcastReceiver;
+//import android.app.KeyguardManager;
+//import android.app.KeyguardManager.KeyguardLock;
+//import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
+//import android.content.Intent;
+//import android.content.IntentFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,7 +39,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements SensorEventListener, EditAlertToneDialogListener, EditAlertTypeDialogListener, EditTimeDialogListener{
 
-	private int time = 60, _increment, lastTimerValue; //in seconds
+	private int time = 60, _increment = 10, lastTimerValue; //in seconds
 	private TextView mintv, sectv;
 	private Vibrator vibrator;
 	private Timer waitTimer;
@@ -55,8 +55,8 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	float _localMax = 0;
 	float _localMin = 0;
 	private SoundPool soundPool;
-	int _alertTone; 			// 1:beep, 2:airhorn // one based to match soundPool
-	int _alertType;  // 1:melody 2:vibration 3:melody&vibration
+	int _alertTone; 	// 1:beep, 2:airhorn - one based to match soundPool
+	int _alertType;  	// 1:melody 2:vibration 3:melody&vibration
 	boolean loaded = false;
 	private int beepSound, hornSound;
 	
@@ -64,7 +64,6 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		_increment= 10;
 		Button button;
 		lastTimerValue = time;
 		started = false;
@@ -101,13 +100,13 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 		_alertTone = 1;  // beep
 		_alertType = 2;  // melody & vibrate
 		
-//		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
-		filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-        filter.addAction(Intent.ACTION_SCREEN_OFF);
-        mReceiver = new ScreenReceiver();
-        mReceiver.setMainActivity(this);
-        registerReceiver(mReceiver, filter);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//		getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+//		filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+//        filter.addAction(Intent.ACTION_SCREEN_OFF);
+//        mReceiver = new ScreenReceiver();
+//        mReceiver.setMainActivity(this);
+//        registerReceiver(mReceiver, filter);
 	}
 
 	private void initilizeSensors()
@@ -197,9 +196,6 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 
 	private void detectProximity(SensorEvent event)
 	{
-		
-	 
-		
 		if(!started && event.values[0] == 0)
 		{
 			if(loaded)
@@ -227,9 +223,7 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	 */
 	public AudioManager getAudioManager() {
 		if(audioManager == null)
-		{
 			audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
-		}
 		return audioManager;
 	}
 
@@ -517,14 +511,14 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	private CountDownTimer countdownTimer;
 	private AudioManager audioManager;
 	private Float maxVolume;
-	private IntentFilter filter;
+//	private IntentFilter filter;
 	private ScreenReceiver mReceiver;
 	
 	@Override
 	protected void onResume()
 	{
 			super.onResume();
-			registerReceiver(mReceiver, filter);
+//			registerReceiver(mReceiver, filter);
 			enableSensors();			
 	}
 
@@ -542,8 +536,8 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	@Override
 	protected void onPause()
 	{
-		sensorManager.unregisterListener(this);
 		super.onPause();
+		sensorManager.unregisterListener(this);
 	}
 	
 	@Override
@@ -558,9 +552,9 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    // Handle presses on the action bar items
 	    switch (item.getItemId()) {
-	        case R.id.action_settings_alert_type:
-	            editAlertType();
-	            return true;
+//	        case R.id.action_settings_alert_type:
+//	            editAlertType();
+//	            return true;
 	        case R.id.action_settings_alert_tone:
 	            editAlertTone();
 	            return true;
@@ -608,8 +602,9 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	}
 	
 	@Override
-	public void OnEditTimeComplete(int increment) {
-		_increment = increment;
+	public void OnEditTimeComplete(int incrementIndex) {
+		String[] displayValues = new String[]{"5","10","15","20","25","30","35","40","45","50","55","60"};
+		_increment = Integer.parseInt(displayValues[incrementIndex]);
 	}
 
 
@@ -661,12 +656,12 @@ public class MainActivity extends Activity implements SensorEventListener, EditA
 	}
 
 	
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		if(!hasFocus)
-		{
-			unregisterReceiver(mReceiver);
-		}
-	}
+//	@Override
+//	public void onWindowFocusChanged(boolean hasFocus) {
+//		if(!hasFocus)
+//		{
+//			unregisterReceiver(mReceiver);
+//		}
+//	}
 	
 }

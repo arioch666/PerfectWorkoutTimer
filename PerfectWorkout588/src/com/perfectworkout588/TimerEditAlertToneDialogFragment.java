@@ -17,11 +17,11 @@ public class TimerEditAlertToneDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_edit_alert_type_title);
        
-        builder.setSingleChoiceItems(R.array.alert_tone_array, _alertTone, new DialogInterface.OnClickListener() {
+        builder.setSingleChoiceItems(R.array.alert_tone_array, _alertTone - 1, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
             // The 'which' argument contains the index position
             // of the selected item
-            	_alertTone = which;
+            	_alertTone = which + 1;
             }
         });
         

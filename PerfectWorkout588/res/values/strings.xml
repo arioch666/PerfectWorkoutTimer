@@ -12,14 +12,11 @@
     <string name="increase_time">+\nTime</string>
     <string name="decrease_time">-\nTime</string>
     <string name="title_activity_settings">SettingsActivity</string>
-    <string name="alert_type">Alert type</string>
-    <string name="alert_tone">Alert tone</string>
-    <string name="edit_icon">Edit Icon</string>
-    <string name="tone_name_default">Beep</string>
-    <string name="timer_time">Time</string>
-    <string name="timer_display_format">00 M 00 S</string>
-    <string name="timer_edit_time_message">Adjust time</string>
-    <string name="timer_edit_time_title">Time</string>
+    <string name="menu_edit_alert_type">Edit alert type</string>
+    <string name="menu_edit_alert_tone">Edit alert tone</string>
+    <string name="menu_edit_time_increments">Edit time increments</string>
+    <string name="dialog_edit_time_increments_message">Set the value the timer will be -/+ by</string>
+    <string name="dialog_edit_time_increments_title">Time Increments</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="dialog_edit_time_title">Edit time</string>
@@ -30,6 +27,7 @@
     <string name="dialog_edit_alert_type_title">Edit alert type</string>
     <string name="dialog_edit_alert_tone_title">Edit alert tone</string>
     <string name="pause">Pause</string>
-    <string name="dialog_edit_time_label_increments">Increments</string>
+    <string name="dialog_edit_time_increments">Time increments</string>
     <string name="app_label">Perfect Workout</string>
+    <string name="dialog_edit_time_increments_seconds">seconds</string>
 </resources>
