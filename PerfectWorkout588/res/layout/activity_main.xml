@@ -2,41 +2,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/blackbutton"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" 
-    android:background="@drawable/blackbutton">
+    tools:context=".MainActivity" >
 
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="37dp" 
-       >
+        android:layout_marginTop="30dp" >
 
         <TextView
             android:id="@+id/tvMin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/_0"
-            android:textSize="90sp" />
+            style="@style/TextView"
+            android:text="@string/_0" />
 
         <TextView
             android:id="@+id/tvColon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/_colon"
-            android:textSize="90sp" />
+            style="@style/TextView"
+            android:text="@string/_colon" />
 
         <TextView
             android:id="@+id/tvSec"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/TextView"
             android:text="@string/_00"
-            android:textSize="90sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -44,51 +37,35 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/linearLayout1"
-        android:layout_marginTop="120dp" 
-        >
+        android:layout_marginBottom="20dp" >
 
         <Button
             android:id="@+id/btnStart"
-            style="@style/ButtonText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="30dp"
+            style="@style/ButtonTextBig"
+            android:layout_gravity="top|center_vertical"
             android:background="@drawable/greenbutton"
-            android:text="@string/start"
-            android:textSize="30sp" />
-
-        <Button
-            android:id="@+id/btnReset"
-            style="@style/ButtonText"
-            android:layout_width="match_parent"
-            android:layout_height="57dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="57dp"
-            android:background="@drawable/purplebutton"
-            android:text="@string/reset"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/btnDecrease"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:text="@string/decrease_time"
-            android:textSize="20sp" 
-            android:background="@drawable/redbutton"
-            style="@style/ButtonText"/>
+            android:text="@string/start" />
 
         <Button
             android:id="@+id/btnIncrease"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            style="@style/ButtonTextSmall"
             android:layout_gravity="right|center_vertical"
-            android:text="@string/increase_time"
-            android:textSize="20sp" 
             android:background="@drawable/yellowbutton"
-            style="@style/ButtonText"/>
+            android:text="@string/increase_time" />
 
+        <Button
+            android:id="@+id/btnDecrease"
+            style="@style/ButtonTextSmall"
+            android:layout_gravity="left|center_vertical"
+            android:background="@drawable/redbutton"
+            android:text="@string/decrease_time" />
+
+        <Button
+            android:id="@+id/btnReset"
+            style="@style/ButtonTextBig"
+            android:layout_gravity="bottom|center_vertical"
+            android:background="@drawable/purplebutton"
+            android:text="@string/reset" />
     </FrameLayout>
 
 </RelativeLayout>
